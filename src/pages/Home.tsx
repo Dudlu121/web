@@ -140,6 +140,7 @@ function ThmTelemetry() {
   const [thmPoints, setThmPoints] = useState<number | null>(null);
   const [thmTier, setThmTier] = useState<string | null>(null);
   const [thmLevel, setThmLevel] = useState<number | null>(null);
+  const [thmCapability, setThmCapability] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
 
@@ -149,21 +150,40 @@ function ThmTelemetry() {
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
 
       try {
-        const res = await fetch("/api/thm-stats", { signal: controller.signal });
+        const workerUrl = "https://thm-proxy.dudlu121.workers.dev/";
+        const res = await fetch(workerUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
         
         if (res.ok) {
           const data = await res.json();
           if (data && (data.status === "success" || data.totalPoints) && data.data) {
             const d = data.data;
+            
+            // Handle Rank (can be string, number, or object {value, pov})
             if (typeof d.rank === 'string') {
               setThmRank(d.rank);
             } else if (typeof d.rank === 'number') {
               setThmRank(`TOP ${d.topPercentage || 1}% (${d.rank})`);
+            } else if (d.rank && typeof d.rank === 'object' && 'value' in d.rank) {
+              setThmRank(`RANK ${d.rank.value} [${d.rank.pov || 'GLOBAL'}]`);
+            } else {
+              setThmRank("ACTIVE");
             }
-            setThmPoints(d.totalPoints);
-            setThmTier(d.leagueTier || 'Hacker');
-            setThmLevel(d.level || 0);
+
+            // Handle Capability Score
+            if (d.capabilityScore && typeof d.capabilityScore === 'object' && 'value' in d.capabilityScore) {
+              const val = d.capabilityScore.value;
+              const pov = d.capabilityScore.pov ? ` [${d.capabilityScore.pov.toUpperCase()}]` : "";
+              setThmCapability(`${val}%${pov}`);
+            } else if (typeof d.capabilityScore === 'number') {
+              setThmCapability(`${d.capabilityScore}%`);
+            } else {
+              setThmCapability("0%");
+            }
+
+            setThmPoints(typeof d.totalPoints === 'number' ? d.totalPoints : 0);
+            setThmTier(typeof d.leagueTier === 'string' ? d.leagueTier : 'Hacker');
+            setThmLevel(typeof d.level === 'number' ? d.level : 0);
             setIsConnected(true);
             return;
           }
@@ -171,12 +191,17 @@ function ThmTelemetry() {
         throw new Error("API Unreachable");
       } catch (e) {
         clearTimeout(timeoutId);
-        console.error("Telemetry Link Failed (Static Hosting Detected). Activating Offline Mode.", e);
+        // Only log if it's NOT an intentional abort
+        if (!(e instanceof Error && e.name === 'AbortError')) {
+           console.error("Telemetry Link Failed (Static Hosting Detected). Activating Offline Mode.", e);
+        }
+        
         // Fallback data for static deployments (Cloudflare Pages)
         setThmRank("TOP 1% (44,204)");
         setThmPoints(8440);
         setThmTier("Gold");
         setThmLevel(11);
+        setThmCapability("72.83% [RED]"); 
         setIsOffline(true);
       }
     };
@@ -232,7 +257,8 @@ function ThmTelemetry() {
         </div>
         
         <div className="font-mono text-[10px] text-accent text-left md:text-right w-full md:w-auto tracking-widest flex flex-col gap-1 items-start md:items-end uppercase mt-2 md:mt-0">
-          {(thmPoints !== null || isOffline) && <span className="font-bold">{thmPoints} EXP POINTS</span>}
+          {(thmCapability !== null || isOffline) && <span className="font-bold">{thmCapability} CAPABILITY SCORE</span>}
+          {(thmPoints !== null || isOffline) && <span className="opacity-70">{thmPoints} EXP POINTS</span>}
         </div>
       </div>
     </div>

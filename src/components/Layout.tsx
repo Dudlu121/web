@@ -47,7 +47,10 @@ export function Layout() {
           <span className="font-mono text-[10px] opacity-40 uppercase tracking-widest hidden md:inline">Scroll for more_</span>
           <div className="hidden md:block w-12 h-[1px] bg-white/20"></div>
           <div className="text-right font-mono flex flex-col items-end pt-1">
-            <a href="https://github.com/AyushMohaptra" target="_blank" rel="noreferrer" className="text-xs hover:text-accent transition-colors block">GH</a>
+            <a href="mailto:me@ayushmohapatra.com" className="text-xs hover:text-accent transition-colors block">ME@AYUSHMOHAPATRA.COM</a>
+            <div className="flex gap-4 mt-1">
+              <a href="https://github.com/AyushMohaptra" target="_blank" rel="noreferrer" className="text-[10px] opacity-40 hover:text-accent hover:opacity-100 transition-all">GITHUB</a>
+            </div>
           </div>
         </div>
       </footer>

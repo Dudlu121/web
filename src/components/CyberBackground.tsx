@@ -16,7 +16,15 @@ export function CyberBackground() {
 
     // Hexadecimal string generator setup for packet parsing look
     const hexChars = '0123456789ABCDEF'.split('');
-    const EASTER_EGGS = ["ROOT", "HACK", "SUDO", "AYUSH", "ZERO", "NMAP", "PWND", "THM"];
+    const EASTER_EGGS = [
+      "ROOT", "HACK", "SUDO", "AYUSH", "ZERO", "NMAP", "PWND", "THM", 
+      "SHELL", "CYBER", "PENTEST", "MALWARE", "WORM", "TROJAN", "CRYPTO",
+      "HASH", "SALTS", "TOKEN", "BRUTE", "EXPLOIT", "STUXNET", "PHISH",
+      "DOX", "SQLI", "XSS", "CSRF", "LOG4J", "HEURISTIC", "MITM", "DDoS",
+      "REDACTED", "GHOST", "PROXY", "BYPASS", "DEBUG", "KERNEL", "BINARY",
+      "NEURAL", "TRANSFORMER", "OPTIMIZER", "GRADIENT", "TENSOR", "GEMINI", 
+      "LLAMA", "PYTORCH", "KERAS", "AUTOENCODER", "GAN", "MLOps"
+    ];
     const fontSize = 14; 
     const columns = Math.ceil(width / fontSize);
     
@@ -26,12 +34,14 @@ export function CyberBackground() {
       isEasterEgg: boolean;
       eggText: string;
       eggColor: string;
+      isHighlighted: boolean;
+      highlightTimer: number;
     }
     
     const drops: Drop[] = [];
 
     const getEggColor = () => {
-      const colors = ['#00F0FF', '#DFFF00', '#FF3366', '#00FF66'];
+      const colors = ['#00F0FF', '#DFFF00', '#FF3366', '#00FF66', '#A020F0'];
       return colors[Math.floor(Math.random() * colors.length)];
     };
 
@@ -39,9 +49,11 @@ export function CyberBackground() {
       drops[x] = {
         y: Math.random() * -100, // Start offscreen randomly
         speed: (Math.random() * 0.4) + 0.1, // Extremely slow creeping speed
-        isEasterEgg: Math.random() > 0.98,
+        isEasterEgg: Math.random() > 0.95, // Increased probability (from 0.98)
         eggText: EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)],
-        eggColor: getEggColor()
+        eggColor: getEggColor(),
+        isHighlighted: false,
+        highlightTimer: 0
       };
     }
 
@@ -75,7 +87,13 @@ export function CyberBackground() {
         const dy = mouse.y - yPos;
         const dist = Math.sqrt(dx * dx + dy * dy);
         
-        if (drop.isEasterEgg) {
+        if (drop.isHighlighted) {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = '#FFFFFF';
+          drop.highlightTimer--;
+          if (drop.highlightTimer <= 0) drop.isHighlighted = false;
+        } else if (drop.isEasterEgg) {
           ctx.fillStyle = `rgba(${parseInt(drop.eggColor.slice(1,3), 16)}, ${parseInt(drop.eggColor.slice(3,5), 16)}, ${parseInt(drop.eggColor.slice(5,7), 16)}, 0.9)`;
           ctx.shadowBlur = 8;
           ctx.shadowColor = drop.eggColor;
@@ -93,10 +111,11 @@ export function CyberBackground() {
         ctx.fillText(textToDraw, xPos, yPos);
 
         // Reset the drop if it falls off the screen (with randomness to space them out)
-        if (yPos > height && Math.random() > 0.98) {
+        if (yPos > height && Math.random() > 0.97) { // Increased reset frequency (from 0.98)
           drop.y = 0;
           drop.speed = (Math.random() * 0.4) + 0.1; 
-          drop.isEasterEgg = Math.random() > 0.985;
+          drop.isEasterEgg = Math.random() > 0.96; // Increased probability (from 0.985)
+          drop.isHighlighted = false;
           if (drop.isEasterEgg) {
              drop.eggText = EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)];
              drop.eggColor = getEggColor();
@@ -125,12 +144,32 @@ export function CyberBackground() {
       mouse.y = e.clientY;
     };
 
+    const handleMouseClick = (e: MouseEvent) => {
+      const clickX = e.clientX;
+      const clickY = e.clientY;
+      
+      // Disrupt data near click
+      drops.forEach((drop, i) => {
+        const xPos = i * fontSize;
+        const yPos = drop.y * fontSize;
+        const dx = clickX - xPos;
+        const dy = clickY - yPos;
+        if (Math.sqrt(dx*dx + dy*dy) < 150) {
+          drop.isHighlighted = true;
+          drop.highlightTimer = 30; // 30 frames of flash
+          drop.speed += 0.5; // Temporarily speed up
+        }
+      });
+    };
+
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('click', handleMouseClick);
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('click', handleMouseClick);
     };
   }, []);
 
