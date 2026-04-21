@@ -60,13 +60,6 @@ const PROJECTS = [
     stack: "Python // spaCy // SQLite // Microsoft Presidio",
     desc: "Modular four-stage pipeline for compliance-grade redaction of 14 PII entity classes across multiple file formats.",
     link: "#",
-  },
-  {
-    id: 3,
-    title: "Virtual Health Assistant",
-    stack: "scikit-learn // Tkinter // SQLite",
-    desc: "Decision Tree classifier diagnosing 17 medical conditions from 50 symptoms delivered via a native Python GUI.",
-    link: "https://github.com/AyushMohaptra/VirtualHealthAssistant",
   }
 ];
 
@@ -79,7 +72,7 @@ const EXPERIENCE = [
   },
   {
     id: 2,
-    title: "Student Coordinator and LEAD",
+    title: "Student Coordinator and Lead",
     org: "IET [REDACTED]",
     date: "2025 - Present",
   }
@@ -96,14 +89,14 @@ const STAGGER_ITEM = {
 };
 
 const CERTS = [
-  { text: "TryHackMe — SOC Level 1 Certificate", link: "#thm-soc1" },
-  { text: "TryHackMe — Jr Penetration Tester Certificate", link: "#thm-jrpen" },
-  { text: "TryHackMe — Web Fundamentals Certificate", link: "#thm-web" },
-  { text: "TryHackMe — loveatfirstbreach CTF", link: "#thm-ctf" },
-  { text: "Google — Develop GenAI Apps with Gemini", link: "#google-genai" },
-  { text: "Google — Prompt Design in Vertex AI", link: "#vertex-ai" },
-  { text: "HackerRank — SQL (Advanced) & Python", link: "#hackerrank" },
-  { text: "Kaggle — Pandas Data Analysis", link: "#kaggle" }
+  { text: "TryHackMe — SOC Level 1 Certificate" },
+  { text: "TryHackMe — Jr Penetration Tester Certificate" },
+  { text: "TryHackMe — Web Fundamentals Certificate" },
+  { text: "TryHackMe — loveatfirstbreach CTF" },
+  { text: "Google — Develop GenAI Apps with Gemini" },
+  { text: "Google — Prompt Design in Vertex AI" },
+  { text: "HackerRank — SQL (Advanced) & Python" },
+  { text: "Kaggle — Pandas Data Analysis" }
 ];
 
 const FADE_UP = {
@@ -349,7 +342,7 @@ export function Home() {
         </section>
 
         {/* EXPERIENCE & CERTS GRID */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-24 relative">
+        <section id="experience" className="grid grid-cols-1 lg:grid-cols-2 gap-24 relative">
           
           <div>
             <motion.div 
@@ -404,17 +397,14 @@ export function Home() {
               </motion.div>
 
               {CERTS.map((cert, i) => (
-                <motion.a
-                  href={cert.link}
-                  target="_blank"
-                  rel="noreferrer"
+                <motion.div
                   key={i}
                   variants={STAGGER_ITEM}
-                  className="font-mono text-[10px] sm:text-xs uppercase tracking-wider leading-relaxed text-white/60 p-4 sm:p-5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-accent hover:text-white transition-all duration-300 flex justify-between items-center group block"
+                  className="font-mono text-[10px] sm:text-xs uppercase tracking-wider leading-relaxed text-white/60 p-4 sm:p-5 bg-white/5 border border-white/10 hover:border-accent/30 transition-all duration-300 flex justify-between items-center group block"
                 >
-                  <span className="max-w-[85%]">{cert.text}</span>
-                  <ArrowUpRight className="w-4 h-4 text-white/20 group-hover:text-accent transition-colors shrink-0" />
-                </motion.a>
+                  <span className="max-w-[100%]">{cert.text}</span>
+                  <div className="w-1.5 h-1.5 bg-accent/20 rounded-full group-hover:bg-accent transition-colors shrink-0 ml-4" />
+                </motion.div>
               ))}
             </motion.div>
           </div>

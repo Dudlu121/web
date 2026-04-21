@@ -23,7 +23,8 @@ export function CyberBackground() {
       "DOX", "SQLI", "XSS", "CSRF", "LOG4J", "HEURISTIC", "MITM", "DDoS",
       "REDACTED", "GHOST", "PROXY", "BYPASS", "DEBUG", "KERNEL", "BINARY",
       "NEURAL", "TRANSFORMER", "OPTIMIZER", "GRADIENT", "TENSOR", "GEMINI", 
-      "LLAMA", "PYTORCH", "KERAS", "AUTOENCODER", "GAN", "MLOps"
+      "LLAMA", "PYTORCH", "KERAS", "AUTOENCODER", "GAN", "MLOps",
+      "me@ayushmohapatra.com"
     ];
     const fontSize = 14; 
     const columns = Math.ceil(width / fontSize);
@@ -36,6 +37,7 @@ export function CyberBackground() {
       eggColor: string;
       isHighlighted: boolean;
       highlightTimer: number;
+      isSpecial: boolean;
     }
     
     const drops: Drop[] = [];
@@ -46,14 +48,17 @@ export function CyberBackground() {
     };
 
     for (let x = 0; x < columns; x++) {
+      const isEgg = Math.random() > 0.95;
+      const eggText = isEgg ? EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)] : "";
       drops[x] = {
         y: Math.random() * -100, // Start offscreen randomly
         speed: (Math.random() * 0.4) + 0.1, // Extremely slow creeping speed
-        isEasterEgg: Math.random() > 0.95, // Increased probability (from 0.98)
-        eggText: EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)],
+        isEasterEgg: isEgg,
+        eggText: eggText,
         eggColor: getEggColor(),
         isHighlighted: false,
-        highlightTimer: 0
+        highlightTimer: 0,
+        isSpecial: eggText === "me@ayushmohapatra.com"
       };
     }
 
@@ -89,10 +94,16 @@ export function CyberBackground() {
         
         if (drop.isHighlighted) {
           ctx.fillStyle = '#FFFFFF';
-          ctx.shadowBlur = 15;
+          ctx.shadowBlur = 20;
           ctx.shadowColor = '#FFFFFF';
           drop.highlightTimer--;
           if (drop.highlightTimer <= 0) drop.isHighlighted = false;
+        } else if (drop.isSpecial) {
+          // Special rainbow shift for the email
+          const hue = (Date.now() / 10) % 360;
+          ctx.fillStyle = `hsla(${hue}, 100%, 70%, 1)`;
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = `hsla(${hue}, 100%, 50%, 0.5)`;
         } else if (drop.isEasterEgg) {
           ctx.fillStyle = `rgba(${parseInt(drop.eggColor.slice(1,3), 16)}, ${parseInt(drop.eggColor.slice(3,5), 16)}, ${parseInt(drop.eggColor.slice(5,7), 16)}, 0.9)`;
           ctx.shadowBlur = 8;
@@ -119,6 +130,7 @@ export function CyberBackground() {
           if (drop.isEasterEgg) {
              drop.eggText = EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)];
              drop.eggColor = getEggColor();
+             drop.isSpecial = drop.eggText === "me@ayushmohapatra.com";
           }
         }
 

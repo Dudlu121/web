@@ -4,7 +4,7 @@ import { CyberBackground } from "./CyberBackground";
 
 export function Layout() {
   return (
-    <div className="min-h-screen relative bg-transparent text-white antialiased overflow-x-hidden selection:bg-accent/20 selection:text-accent">
+    <div className="min-h-screen relative bg-[#050505] text-white antialiased overflow-x-hidden selection:bg-accent/20 selection:text-accent">
       {/* High-Performance Canvas Interactive Cyber Network */}
       <CyberBackground />
 
@@ -23,6 +23,7 @@ export function Layout() {
         <nav className="hidden md:flex gap-8 font-mono text-[10px] uppercase tracking-widest pointer-events-auto mt-1">
           <a href="/" className="text-white hover:text-accent transition-colors duration-300">[ 01 ] INDEX</a>
           <a href="/#projects" className="text-white/40 hover:text-accent transition-colors duration-300">[ 02 ] REPOS</a>
+          <a href="/#experience" className="text-white/40 hover:text-accent transition-colors duration-300">[ 03 ] LABS</a>
           <a href="/resume" className="text-accent hover:text-accent/80 transition-colors duration-300">[ 04 ] SECURE_PORTFOLIO</a>
         </nav>
       </header>
