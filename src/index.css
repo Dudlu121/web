@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-accent: #DFFF00;
+  --color-accent-deep: #b3cc00;
+  --color-cyber: #00F0FF;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", Courier, monospace;
+  --font-display: "Chakra Petch", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[#050505] text-white font-sans antialiased overflow-x-hidden;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    body, a, button, input, textarea, select {
+      cursor: none !important;
+    }
+  }
+
+  ::selection {
+    @apply bg-accent/30 text-accent;
+  }
+}
+
+/* Removed Rigid CSS Grid Variables - Now Handled via JS Canvas */
+
+/* Ambient Cybersec Animations */
+@keyframes ambient-border-shift {
+  0% { border-color: rgba(255, 255, 255, 0.1); }
+  33% { border-color: rgba(223, 255, 0, 0.25); }
+  66% { border-color: rgba(0, 240, 255, 0.25); }
+  100% { border-color: rgba(255, 255, 255, 0.1); }
+}
+
+@keyframes ambient-bg-pulse {
+  0% { background-color: rgba(5, 5, 5, 0); }
+  50% { background-color: rgba(223, 255, 0, 0.03); }
+  100% { background-color: rgba(5, 5, 5, 0); }
+}
+
+@keyframes slow-neon-pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; filter: drop-shadow(0 0 4px rgba(223,255,0,0.3)); }
+  100% { opacity: 0.7; }
+}
+
+.ambient-border {
+  animation: ambient-border-shift 12s ease-in-out infinite;
+}
+
+.ambient-bg-slow {
+  animation: ambient-bg-pulse 8s ease-in-out infinite;
+}
+
+.ambient-neon {
+  animation: slow-neon-pulse 6s ease-in-out infinite;
+}
+
+.bg-black-true {
+  background-color: #050505;
+}
+
+.outline-text {
+  color: transparent;
+  -webkit-text-stroke: 1px #ffffff33;
+}
+
+.glow-accent {
+  text-shadow: none; /* Completely removed to prevent smearing, using solid color for bolder look */
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+}
+
+.letter-spacing-tighter {
+  letter-spacing: -0.05em;
+}
+
+.resume-card {
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scanline {
+  background: linear-gradient(to bottom, transparent 50%, rgba(223, 255, 0, 0.02) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 50;
+  position: fixed;
+  inset: 0;
+}
