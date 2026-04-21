@@ -18,7 +18,6 @@ export function Layout() {
       {/* Top Navigation Frame */}
       <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-8 flex justify-between items-start pointer-events-none">
         <div className="flex flex-col gap-1 pointer-events-auto">
-          <span className="text-accent font-mono text-[10px] tracking-widest font-bold">PORTFOLIO_SYSTEM_V2.0</span>
           <a href="/" className="font-display text-2xl font-black letter-spacing-tighter text-white hover:text-accent transition-colors duration-300">AYUSH MOHAPATRA</a>
         </div>
         <nav className="hidden md:flex gap-8 font-mono text-[10px] uppercase tracking-widest pointer-events-auto mt-1">

@@ -2,6 +2,50 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
+function DecryptText({ text, speed = 40, delay = 0, className }: { text: string; speed?: number; delay?: number; className?: string }) {
+  const [displayText, setDisplayText] = useState("");
+  
+  useEffect(() => {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+    let iteration = 0;
+    let interval: NodeJS.Timeout | null = null;
+    let startTimeout: NodeJS.Timeout | null = null;
+
+    const startAnimation = () => {
+      interval = setInterval(() => {
+        setDisplayText(
+          text
+            .split("")
+            .map((letter, index) => {
+              if (index < iteration) {
+                return text[index];
+              }
+              // Skip spaces from randomizing
+              if (text[index] === " ") return " ";
+              return letters[Math.floor(Math.random() * letters.length)];
+            })
+            .join("")
+        );
+
+        if (iteration >= text.length) {
+          clearInterval(interval!);
+        }
+
+        iteration += 1 / 3;
+      }, speed);
+    };
+
+    startTimeout = setTimeout(startAnimation, delay);
+
+    return () => {
+      if (interval) clearInterval(interval);
+      if (startTimeout) clearTimeout(startTimeout);
+    };
+  }, [text, speed, delay]);
+
+  return <span className={className}>{displayText || "\u00A0"}</span>;
+}
+
 const PROJECTS = [
   {
     id: 1,
@@ -35,7 +79,7 @@ const EXPERIENCE = [
   },
   {
     id: 2,
-    title: "Student Coordinator",
+    title: "Student Coordinator and LEAD",
     org: "IET [REDACTED]",
     date: "2025 - Present",
   }
@@ -97,14 +141,20 @@ function ThmTelemetry() {
   const [thmTier, setThmTier] = useState<string | null>(null);
   const [thmLevel, setThmLevel] = useState<number | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
       try {
-        const res = await fetch("/api/thm-stats");
+        const res = await fetch("/api/thm-stats", { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
         if (res.ok) {
           const data = await res.json();
-          if (data && data.status === "success" && data.data) {
+          if (data && (data.status === "success" || data.totalPoints) && data.data) {
             const d = data.data;
             if (typeof d.rank === 'string') {
               setThmRank(d.rank);
@@ -115,10 +165,19 @@ function ThmTelemetry() {
             setThmTier(d.leagueTier || 'Hacker');
             setThmLevel(d.level || 0);
             setIsConnected(true);
+            return;
           }
         }
+        throw new Error("API Unreachable");
       } catch (e) {
-        console.error("Failed to fetch THM stats directly.", e);
+        clearTimeout(timeoutId);
+        console.error("Telemetry Link Failed (Static Hosting Detected). Activating Offline Mode.", e);
+        // Fallback data for static deployments (Cloudflare Pages)
+        setThmRank("TOP 1% (44,204)");
+        setThmPoints(8440);
+        setThmTier("Gold");
+        setThmLevel(11);
+        setIsOffline(true);
       }
     };
     fetchStats();
@@ -133,16 +192,16 @@ function ThmTelemetry() {
       {/* Telemetry Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10 w-full">
         <div className="flex items-center gap-3">
-           <div className={`w-2 h-2 ${isConnected ? 'bg-accent animate-pulse' : 'bg-white/20'} rounded-sm`} />
+           <div className={`w-2 h-2 ${isConnected ? 'bg-accent animate-pulse' : isOffline ? 'bg-orange-500' : 'bg-white/20'} rounded-sm`} />
            <span className="font-mono text-[10px] text-accent uppercase tracking-widest font-semibold">
-             {isConnected ? 'THM_TELEMETRY_LINK_ACTIVE' : 'ESTABLISHING LINK...'}
+             {isConnected ? 'THM_TELEMETRY_LINK_ACTIVE' : isOffline ? 'THM_DATA_CACHED_OFFLINE' : 'ESTABLISHING LINK...'}
            </span>
         </div>
         
         {/* Dynamic Text Rank Output (Fetched via pure text) */}
-        {thmRank && (
+        {(thmRank || isOffline) && (
           <div className="font-display text-xl md:text-2xl font-bold text-gray-200 letter-spacing-tighter tracking-tight tracking-[-0.04em]">
-            GLOBAL RANK // <span className="text-accent">{thmRank.toUpperCase()}</span>
+            GLOBAL RANK // <span className="text-accent">{thmRank?.toUpperCase() || "RANK_PENDING"}</span>
           </div>
         )}
       </div>
@@ -151,7 +210,7 @@ function ThmTelemetry() {
         <div className="w-full max-w-lg">
           {/* Pure Visualizer replacing buggy S3 image */}
           <div className="relative w-full h-[50px] overflow-hidden rounded-sm border-l-2 border-accent/40 bg-black/50 group-hover:border-accent/80 transition-colors flex items-center px-4">
-             {isConnected ? (
+             {(isConnected || isOffline) ? (
                 <div className="flex w-full justify-between items-center z-10 text-gray-200 font-mono uppercase tracking-widest text-xs md:text-sm">
                   <span className="opacity-90 font-bold">LVL {thmLevel} [{currentTitle}]</span>
                   <span className="text-accent font-bold">{thmTier} LEAGUE</span>
@@ -161,7 +220,7 @@ function ThmTelemetry() {
              )}
              
              {/* Decorative Background for visualizing */}
-             {isConnected && (
+             {(isConnected || isOffline) && (
                <>
                  <div className="absolute top-0 left-0 h-full w-[30%] bg-gradient-to-r from-accent/20 to-transparent" />
                  <div className="absolute bottom-0 right-0 h-[2px] w-full bg-gradient-to-r from-transparent to-accent/40" />
@@ -173,7 +232,7 @@ function ThmTelemetry() {
         </div>
         
         <div className="font-mono text-[10px] text-accent text-left md:text-right w-full md:w-auto tracking-widest flex flex-col gap-1 items-start md:items-end uppercase mt-2 md:mt-0">
-          {thmPoints !== null && <span className="font-bold">{thmPoints} EXP POINTS</span>}
+          {(thmPoints !== null || isOffline) && <span className="font-bold">{thmPoints} EXP POINTS</span>}
         </div>
       </div>
     </div>
@@ -197,8 +256,12 @@ export function Home() {
               EST. 2024 / CSE STUDENT
             </span>
             <div className="flex flex-col font-display font-semibold text-[clamp(4rem,14vw,12rem)] leading-[0.9] tracking-tight uppercase overflow-hidden py-4 text-gray-100">
-              <motion.div variants={FADE_UP} className="outline-text">AYUSH</motion.div>
-              <motion.div variants={FADE_UP} className="text-accent drop-shadow-md">MOHAPATRA</motion.div>
+              <motion.div variants={FADE_UP} className="outline-text">
+                <DecryptText text="AYUSH" delay={200} />
+              </motion.div>
+              <motion.div variants={FADE_UP} className="text-accent drop-shadow-md">
+                <DecryptText text="MOHAPATRA" delay={800} />
+              </motion.div>
             </div>
           </div>
 

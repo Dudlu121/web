@@ -16,14 +16,33 @@ export function CyberBackground() {
 
     // Hexadecimal string generator setup for packet parsing look
     const hexChars = '0123456789ABCDEF'.split('');
+    const EASTER_EGGS = ["ROOT", "HACK", "SUDO", "AYUSH", "ZERO", "NMAP", "PWND", "THM"];
     const fontSize = 14; 
     const columns = Math.ceil(width / fontSize);
-    const rainDrops: number[] = [];
-    const packetSpeeds: number[] = [];
+    
+    interface Drop {
+      y: number;
+      speed: number;
+      isEasterEgg: boolean;
+      eggText: string;
+      eggColor: string;
+    }
+    
+    const drops: Drop[] = [];
+
+    const getEggColor = () => {
+      const colors = ['#00F0FF', '#DFFF00', '#FF3366', '#00FF66'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    };
 
     for (let x = 0; x < columns; x++) {
-      rainDrops[x] = Math.random() * -100; // Start offscreen randomly
-      packetSpeeds[x] = (Math.random() * 0.4) + 0.1; // Extremely slow creeping speed
+      drops[x] = {
+        y: Math.random() * -100, // Start offscreen randomly
+        speed: (Math.random() * 0.4) + 0.1, // Extremely slow creeping speed
+        isEasterEgg: Math.random() > 0.98,
+        eggText: EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)],
+        eggColor: getEggColor()
+      };
     }
 
     const mouse = { x: -1000, y: -1000 };
@@ -33,29 +52,33 @@ export function CyberBackground() {
       ctx.fillStyle = 'rgba(5, 5, 5, 0.08)';
       ctx.fillRect(0, 0, width, height);
 
-      ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
+      ctx.font = `bold ${fontSize}px "JetBrains Mono", monospace`;
 
-      for (let i = 0; i < rainDrops.length; i++) {
-        // Generate random Hex Byte
-        const byte = hexChars[Math.floor(Math.random() * hexChars.length)] + 
-                     hexChars[Math.floor(Math.random() * hexChars.length)];
+      for (let i = 0; i < drops.length; i++) {
+        const drop = drops[i];
+        
+        let textToDraw = "";
+        
+        if (drop.isEasterEgg) {
+           textToDraw = drop.eggText;
+        } else {
+           // Generate random Hex Byte
+           textToDraw = hexChars[Math.floor(Math.random() * hexChars.length)] + 
+                        hexChars[Math.floor(Math.random() * hexChars.length)];
+        }
         
         const xPos = i * fontSize;
-        const yPos = rainDrops[i] * fontSize;
+        const yPos = drop.y * fontSize;
 
         // Interaction Logic: Decryption radius around the mouse
         const dx = mouse.x - xPos;
         const dy = mouse.y - yPos;
         const dist = Math.sqrt(dx * dx + dy * dy);
-
-        let isHighlight = false;
         
-        // Random "Corrupted / Malicious Packets" that pop out periodically
-        if (Math.random() > 0.995) {
-          isHighlight = true;
-          ctx.fillStyle = 'rgba(0, 240, 255, 0.8)'; // Cyan trace
-          ctx.shadowBlur = 5;
-          ctx.shadowColor = '#00F0FF';
+        if (drop.isEasterEgg) {
+          ctx.fillStyle = `rgba(${parseInt(drop.eggColor.slice(1,3), 16)}, ${parseInt(drop.eggColor.slice(3,5), 16)}, ${parseInt(drop.eggColor.slice(5,7), 16)}, 0.9)`;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = drop.eggColor;
         } else if (dist < 120) {
           // The "Decryption Lens" effect when hovering over data
           ctx.fillStyle = `rgba(223, 255, 0, ${1 - dist / 120})`;
@@ -67,16 +90,21 @@ export function CyberBackground() {
           ctx.shadowBlur = 0;
         }
 
-        ctx.fillText(byte, xPos, yPos);
+        ctx.fillText(textToDraw, xPos, yPos);
 
         // Reset the drop if it falls off the screen (with randomness to space them out)
         if (yPos > height && Math.random() > 0.98) {
-          rainDrops[i] = 0;
-          packetSpeeds[i] = (Math.random() * 0.4) + 0.1; 
+          drop.y = 0;
+          drop.speed = (Math.random() * 0.4) + 0.1; 
+          drop.isEasterEgg = Math.random() > 0.985;
+          if (drop.isEasterEgg) {
+             drop.eggText = EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)];
+             drop.eggColor = getEggColor();
+          }
         }
 
         // Advance downward slowly
-        rainDrops[i] += packetSpeeds[i];
+        drop.y += drop.speed;
       }
 
       ctx.shadowBlur = 0; // Reset
