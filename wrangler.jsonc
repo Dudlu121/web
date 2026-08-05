@@ -2,6 +2,9 @@
   "name": "web",
   "compatibility_date": "2026-08-05",
   "main": "src/worker.ts",
+  "vars": {
+    "THM_USERNAME": "dudlu121"
+  },
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application"
