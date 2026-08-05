@@ -27,10 +27,7 @@ export default {
     if (url.pathname === "/api/thm-stats") {
       const githubPat = env.GITHUB_PAT;
       if (!githubPat) {
-        return new Response(JSON.stringify({ 
-          error: "GITHUB_PAT not configured", 
-          available_keys: Object.keys(env || {}) 
-        }), {
+        return new Response(JSON.stringify({ error: "GITHUB_PAT not configured" }), {
           status: 400,
           headers: { "Content-Type": "application/json" }
         });
