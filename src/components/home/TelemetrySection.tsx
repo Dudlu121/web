@@ -33,8 +33,8 @@ export function TelemetrySection() {
         }
         throw new Error("API Rate Limit or CORS");
       } catch (e) {
-        setThmRank("TOP 1% (44,204)");
-        setThmPoints(8440);
+        setThmRank("TOP 1% (~12,500)");
+        setThmPoints(24150);
         setThmTier("Gold");
         setThmLevel(13);
         setIsConnected(true);

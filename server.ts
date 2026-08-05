@@ -75,12 +75,13 @@ async function startServer() {
       }
 
       const githubPat = process.env.GITHUB_PAT;
-      if (!githubPat) {
-        console.warn("GITHUB_PAT not configured, falling back to THM API (may be blocked)");
+      const isDummyPat = githubPat && githubPat.includes("11BCGBOHA");
+      if (!githubPat || isDummyPat) {
+        console.warn("GITHUB_PAT not configured or is dummy, falling back to THM API");
       }
 
       let response;
-      if (githubPat) {
+      if (githubPat && !isDummyPat) {
         response = await fetch(`https://api.github.com/repos/Dudlu121/THM-STATS-PULLER/contents/data/latest.json`, {
           headers: {
             "Authorization": `token ${githubPat}`,
