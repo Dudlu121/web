@@ -8,6 +8,7 @@ import { ReviewPage } from "./pages/ReviewPage";
 import { WriteupsIndexPage } from "./pages/WriteupsIndexPage";
 import { ReviewsIndexPage } from "./pages/ReviewsIndexPage";
 import { CertificationsIndexPage } from "./pages/CertificationsIndexPage";
+import { useAnimatedFavicon } from "./hooks/useAnimatedFavicon";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -20,6 +21,8 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  useAnimatedFavicon("/favicon.mp4");
+
   return (
     <BrowserRouter>
       <ScrollToTop />
