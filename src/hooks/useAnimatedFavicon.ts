@@ -28,34 +28,57 @@ export function useAnimatedFavicon(videoUrl: string) {
 
     let animationFrameId: number;
     let lastDrawTime = 0;
+    const fps = 10; // 10 FPS is perfect for animated tab icon without lag
+    const fpsInterval = 1000 / fps;
 
-    const drawFrame = () => {
-      if (!ctx || video.paused || video.ended) return;
+    const drawFrame = (time: number) => {
+      if (!ctx || video.paused || video.ended) {
+        animationFrameId = requestAnimationFrame(drawFrame);
+        return;
+      }
       
-      ctx.clearRect(0, 0, 32, 32);
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(16, 16, 16, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(video, 0, 0, 32, 32);
-      ctx.restore();
-      
-      link.href = canvas.toDataURL('image/png');
+      const elapsed = time - lastDrawTime;
+      if (elapsed > fpsInterval) {
+        lastDrawTime = time - (elapsed % fpsInterval);
+        
+        ctx.clearRect(0, 0, 32, 32);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(16, 16, 16, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(video, 0, 0, 32, 32);
+        ctx.restore();
+        
+        link.href = canvas.toDataURL('image/png');
+      }
       
       animationFrameId = requestAnimationFrame(drawFrame);
     };
 
-    video.addEventListener('play', () => {
-      video.playbackRate = 2.0; // Speed up the animation further
-      animationFrameId = requestAnimationFrame(drawFrame);
-    });
+    const startPlayback = () => {
+      video.playbackRate = 2.0; // Play at 2x speed
+      video.play().catch(e => console.log("Favicon video play deferred:", e));
+    };
 
-    video.play().catch(e => console.error("Favicon video autoplay failed:", e));
+    video.addEventListener('canplay', startPlayback);
+    
+    const handleInteraction = () => {
+      startPlayback();
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+    };
+    document.addEventListener('click', handleInteraction);
+    document.addEventListener('touchstart', handleInteraction);
+
+    animationFrameId = requestAnimationFrame(drawFrame);
 
     return () => {
-      video.pause();
       cancelAnimationFrame(animationFrameId);
+      video.removeEventListener('canplay', startPlayback);
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+      video.pause();
       if (document.body.contains(video)) {
         document.body.removeChild(video);
       }

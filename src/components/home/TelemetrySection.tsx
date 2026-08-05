@@ -26,7 +26,7 @@ export function TelemetrySection() {
           const data = await res.json();
           setThmRank(`RANK ${data.userRank || data.rank || data?.data?.userRank || data?.data?.rank || "ACTIVE"}`);
           setThmPoints(data.points || data?.data?.points || data?.data?.totalPoints || 0);
-          setThmLevel(data.level || data?.data?.level || 11); 
+          setThmLevel(data.level ? parseInt(String(data.level), 10) : (data?.data?.level ? parseInt(String(data?.data?.level), 10) : 13)); 
           setThmTier(data.league || data?.data?.league || data?.data?.leagueTier || "Gold");
           setIsConnected(true);
           return;
@@ -36,7 +36,7 @@ export function TelemetrySection() {
         setThmRank("TOP 1% (44,204)");
         setThmPoints(8440);
         setThmTier("Gold");
-        setThmLevel(11);
+        setThmLevel(13);
         setIsConnected(true);
       }
     };
