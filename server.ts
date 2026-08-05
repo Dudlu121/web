@@ -79,11 +79,9 @@ async function startServer() {
         return res.status(400).json({ error: "GITHUB_PAT not configured" });
       }
 
-      const response = await fetch(`https://api.github.com/repos/Dudlu121/THM-STATS-PULLER/contents/data/latest.json`, {
+      const response = await fetch(`https://raw.githubusercontent.com/Dudlu121/THM-STATS-PULLER/main/data/latest.json`, {
         headers: {
-          "Authorization": `token ${githubPat}`,
-          "Accept": "application/vnd.github.v3.raw",
-          "User-Agent": "Express-Dev-Server"
+          "Authorization": `token ${githubPat}`
         }
       });
 

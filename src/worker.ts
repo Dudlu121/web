@@ -34,11 +34,9 @@ export default {
       }
 
       try {
-        const response = await fetch(`https://api.github.com/repos/Dudlu121/THM-STATS-PULLER/contents/data/latest.json`, {
+        const response = await fetch(`https://raw.githubusercontent.com/Dudlu121/THM-STATS-PULLER/main/data/latest.json`, {
           headers: {
-            "Authorization": `token ${githubPat}`,
-            "Accept": "application/vnd.github.v3.raw",
-            "User-Agent": "Cloudflare-Worker"
+            "Authorization": `token ${githubPat}`
           }
         });
 
