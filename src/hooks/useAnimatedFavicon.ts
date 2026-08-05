@@ -19,9 +19,10 @@ export function useAnimatedFavicon(videoUrl: string) {
     canvas.height = 32;
     const ctx = canvas.getContext('2d');
     
-    let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+    let link = document.getElementById("dynamic-favicon") as HTMLLinkElement;
     if (!link) {
       link = document.createElement('link');
+      link.id = 'dynamic-favicon';
       link.rel = 'icon';
       document.head.appendChild(link);
     }
