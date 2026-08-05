@@ -1,0 +1,15 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+test*.js
+test*.ts
+*.cjs
+repos.json
+thm-data.json
+thm-puller.json
+metadata.json
