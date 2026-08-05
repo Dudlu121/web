@@ -75,28 +75,17 @@ async function startServer() {
       }
 
       const githubPat = process.env.GITHUB_PAT;
-      const isDummyPat = githubPat && githubPat.includes("11BCGBOHA");
-      if (!githubPat || isDummyPat) {
-        console.warn("GITHUB_PAT not configured or is dummy, falling back to THM API");
+      if (!githubPat) {
+        return res.status(400).json({ error: "GITHUB_PAT not configured" });
       }
 
-      let response;
-      if (githubPat && !isDummyPat) {
-        response = await fetch(`https://api.github.com/repos/Dudlu121/THM-STATS-PULLER/contents/data/latest.json`, {
-          headers: {
-            "Authorization": `token ${githubPat}`,
-            "Accept": "application/vnd.github.v3.raw",
-            "User-Agent": "Express-Dev-Server"
-          }
-        });
-      } else {
-        response = await fetch(`https://tryhackme.com/api/v2/public-profile?username=${username}`, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-            "Accept": "application/json"
-          }
-        });
-      }
+      const response = await fetch(`https://api.github.com/repos/Dudlu121/THM-STATS-PULLER/contents/data/latest.json`, {
+        headers: {
+          "Authorization": `token ${githubPat}`,
+          "Accept": "application/vnd.github.v3.raw",
+          "User-Agent": "Express-Dev-Server"
+        }
+      });
 
       if (!response.ok) {
         return res.status(response.status).json({ error: `Failed to fetch THM stats: ${response.statusText}` });

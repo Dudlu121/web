@@ -25,35 +25,22 @@ export default {
 
     // Proxy TryHackMe Stats
     if (url.pathname === "/api/thm-stats") {
-      const username = env.THM_USERNAME;
       const githubPat = env.GITHUB_PAT;
-      if (!username) {
-        return new Response(JSON.stringify({ error: "THM_USERNAME not configured" }), {
+      if (!githubPat) {
+        return new Response(JSON.stringify({ error: "GITHUB_PAT not configured" }), {
           status: 400,
           headers: { "Content-Type": "application/json" }
         });
       }
 
       try {
-        let response;
-        const isDummyPat = githubPat && githubPat.includes("11BCGBOHA");
-
-        if (githubPat && !isDummyPat) {
-          response = await fetch(`https://api.github.com/repos/Dudlu121/THM-STATS-PULLER/contents/data/latest.json`, {
-            headers: {
-              "Authorization": `token ${githubPat}`,
-              "Accept": "application/vnd.github.v3.raw",
-              "User-Agent": "Cloudflare-Worker"
-            }
-          });
-        } else {
-          response = await fetch(`https://tryhackme.com/api/v2/public-profile?username=${username}`, {
-            headers: {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-              "Accept": "application/json"
-            }
-          });
-        }
+        const response = await fetch(`https://api.github.com/repos/Dudlu121/THM-STATS-PULLER/contents/data/latest.json`, {
+          headers: {
+            "Authorization": `token ${githubPat}`,
+            "Accept": "application/vnd.github.v3.raw",
+            "User-Agent": "Cloudflare-Worker"
+          }
+        });
 
         if (!response.ok) {
           return new Response(JSON.stringify({ error: `Failed to fetch: ${response.statusText}` }), {
