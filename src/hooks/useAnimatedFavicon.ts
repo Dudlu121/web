@@ -28,8 +28,9 @@ export function useAnimatedFavicon(videoUrl: string) {
 
     let animationFrameId: number;
     let lastDrawTime = 0;
-    const fps = 10; // 10 FPS is perfect for animated tab icon without lag
+    const fps = 12; // 12 FPS is perfect for favicons
     const fpsInterval = 1000 / fps;
+    let activeObjectURL: string | null = null;
 
     const drawFrame = (time: number) => {
       if (!ctx || video.paused || video.ended) {
@@ -50,14 +51,25 @@ export function useAnimatedFavicon(videoUrl: string) {
         ctx.drawImage(video, 0, 0, 32, 32);
         ctx.restore();
         
-        link.href = canvas.toDataURL('image/png');
+        // Use asynchronous toBlob to prevent blocking the main thread
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          const newUrl = URL.createObjectURL(blob);
+          link.href = newUrl;
+          
+          // Free memory of the previous frame URL
+          if (activeObjectURL) {
+            URL.revokeObjectURL(activeObjectURL);
+          }
+          activeObjectURL = newUrl;
+        }, 'image/png');
       }
       
       animationFrameId = requestAnimationFrame(drawFrame);
     };
 
     const startPlayback = () => {
-      video.playbackRate = 2.0; // Play at 2x speed
+      video.playbackRate = 1.5; // Slightly reduced playback speed to ease decoding load
       video.play().catch(e => console.log("Favicon video play deferred:", e));
     };
 
@@ -79,6 +91,9 @@ export function useAnimatedFavicon(videoUrl: string) {
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('touchstart', handleInteraction);
       video.pause();
+      if (activeObjectURL) {
+        URL.revokeObjectURL(activeObjectURL);
+      }
       if (document.body.contains(video)) {
         document.body.removeChild(video);
       }
